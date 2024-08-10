@@ -1,0 +1,5 @@
+**/pyc
+**.pt
+**/__pycache__
+./Data/dir_list/*
+./Data/idx_list/*

@@ -1,0 +1,129 @@
+config_dir                    : /mnt/nas/home/huxing/202407/ctf/SolarCLIP/configs/config_lop1p_all_log1p
+batch_size                    : 256
+learning_rate                 : 0.001
+epochs                        : 10000
+test_freq                     : 10
+save_freq                     : 10
+num_workers                   : 8
+embed_dim                     : 512
+vision_width                  : 768
+image_resolution_mag          : 224
+vision_layers_mag             : 12
+vision_patch_size_mag         : 32
+image_resolution_H            : 224
+vision_layers_H               : 12
+vision_patch_size_H           : 32
+token_type                    : all embedding
+modal_list                    : ['magnet', '0094']
+enhance_list                  : [['log1p', 224, 1], ['log1p', 224, 1]]
+device                        : cuda:0
+checkpoint_path               : /mnt/nas/home/huxing/202407/ctf/SolarCLIP/checkpoints/all embedding/log1p
+args saved to /mnt/nas/home/huxing/202407/ctf/SolarCLIP/checkpoints/all embedding/log1p/args.json
+device: cuda:0
+DataLoader time: 0.11712813377380371
+Time 0.00  |Train loss 3.37931728 |Train acc 0.03448276 |Val loss 3.37931728 |Val acc 0.09765625 |
+Model saved 0.00%
+epoch 1: Loss = 3.379317283630371 | Time = 0.08 min
+epoch 2: Loss = 3.370230197906494 | Time = 2.60 min
+epoch 3: Loss = 3.372023582458496 | Time = 5.06 min
+epoch 4: Loss = 3.3742542266845703 | Time = 7.54 min
+epoch 5: Loss = 3.372056007385254 | Time = 10.04 min
+epoch 6: Loss = 3.365957021713257 | Time = 12.57 min
+epoch 7: Loss = 3.371556282043457 | Time = 15.07 min
+epoch 8: Loss = 3.3650755882263184 | Time = 17.57 min
+epoch 9: Loss = 3.366823196411133 | Time = 20.10 min
+epoch 10: Loss = 3.3704214096069336 | Time = 22.58 min
+epoch 11: Loss = 3.3659377098083496 | Time = 25.04 min
+epoch 12: Loss = 3.363421678543091 | Time = 27.50 min
+epoch 13: Loss = 3.3709616661071777 | Time = 29.95 min
+epoch 14: Loss = 3.368990898132324 | Time = 32.47 min
+epoch 15: Loss = 3.368403911590576 | Time = 35.00 min
+epoch 16: Loss = 3.3720293045043945 | Time = 37.54 min
+epoch 17: Loss = 3.371943473815918 | Time = 40.07 min
+epoch 18: Loss = 3.366178274154663 | Time = 42.52 min
+epoch 19: Loss = 3.3641867637634277 | Time = 44.92 min
+epoch 20: Loss = 3.360283851623535 | Time = 47.39 min
+epoch 21: Loss = 3.3645975589752197 | Time = 49.85 min
+epoch 22: Loss = 3.365933656692505 | Time = 52.34 min
+epoch 23: Loss = 3.3630387783050537 | Time = 54.79 min
+epoch 24: Loss = 3.3543500900268555 | Time = 57.25 min
+epoch 25: Loss = 3.3700003623962402 | Time = 59.77 min
+epoch 26: Loss = 3.358938217163086 | Time = 62.29 min
+epoch 27: Loss = 3.3620381355285645 | Time = 64.83 min
+epoch 28: Loss = 3.35168194770813 | Time = 67.28 min
+epoch 29: Loss = 3.3601765632629395 | Time = 69.76 min
+epoch 30: Loss = 3.360506772994995 | Time = 72.26 min
+epoch 31: Loss = 3.3609867095947266 | Time = 74.69 min
+epoch 32: Loss = 3.3587498664855957 | Time = 77.22 min
+epoch 33: Loss = 3.352517604827881 | Time = 79.71 min
+epoch 34: Loss = 3.3642804622650146 | Time = 82.21 min
+epoch 35: Loss = 3.3560144901275635 | Time = 84.77 min
+epoch 36: Loss = 3.351558208465576 | Time = 87.32 min
+epoch 37: Loss = 3.3494691848754883 | Time = 89.88 min
+epoch 38: Loss = 3.3522019386291504 | Time = 92.43 min
+epoch 39: Loss = 3.3565096855163574 | Time = 94.98 min
+epoch 40: Loss = 3.35296630859375 | Time = 97.59 min
+epoch 41: Loss = 3.348512649536133 | Time = 100.16 min
+epoch 42: Loss = 3.3519139289855957 | Time = 102.75 min
+epoch 43: Loss = 3.3501155376434326 | Time = 105.32 min
+epoch 44: Loss = 3.349210500717163 | Time = 107.86 min
+epoch 45: Loss = 3.3547873497009277 | Time = 110.45 min
+epoch 46: Loss = 3.3606796264648438 | Time = 113.04 min
+epoch 47: Loss = 3.3524746894836426 | Time = 115.57 min
+epoch 48: Loss = 3.3356356620788574 | Time = 118.20 min
+epoch 49: Loss = 3.3411498069763184 | Time = 120.74 min
+epoch 50: Loss = 3.3496973514556885 | Time = 123.33 min
+epoch 51: Loss = 3.348649024963379 | Time = 125.93 min
+epoch 52: Loss = 3.3355371952056885 | Time = 128.53 min
+epoch 53: Loss = 3.3441290855407715 | Time = 131.06 min
+epoch 54: Loss = 3.3338518142700195 | Time = 133.60 min
+epoch 55: Loss = 3.330195903778076 | Time = 136.14 min
+epoch 56: Loss = 3.3388092517852783 | Time = 138.68 min
+epoch 57: Loss = 3.34494948387146 | Time = 141.30 min
+epoch 58: Loss = 3.3487818241119385 | Time = 143.83 min
+epoch 59: Loss = 3.3313705921173096 | Time = 146.44 min
+epoch 60: Loss = 3.3246898651123047 | Time = 149.00 min
+epoch 61: Loss = 3.331071376800537 | Time = 151.57 min
+epoch 62: Loss = 3.3186516761779785 | Time = 154.09 min
+epoch 63: Loss = 3.335031509399414 | Time = 156.69 min
+epoch 64: Loss = 3.327040672302246 | Time = 159.25 min
+epoch 65: Loss = 3.307666778564453 | Time = 161.86 min
+epoch 66: Loss = 3.311628818511963 | Time = 164.47 min
+epoch 67: Loss = 3.3113696575164795 | Time = 167.03 min
+epoch 68: Loss = 3.286083221435547 | Time = 169.69 min
+epoch 69: Loss = 3.301378011703491 | Time = 172.21 min
+epoch 70: Loss = 3.311825752258301 | Time = 174.70 min
+epoch 71: Loss = 3.3035409450531006 | Time = 177.25 min
+epoch 72: Loss = 3.291280746459961 | Time = 179.89 min
+epoch 73: Loss = 3.301150321960449 | Time = 182.44 min
+epoch 74: Loss = 3.286747455596924 | Time = 185.03 min
+epoch 75: Loss = 3.280883550643921 | Time = 187.58 min
+epoch 76: Loss = 3.2544476985931396 | Time = 190.09 min
+epoch 77: Loss = 3.261775255203247 | Time = 192.67 min
+epoch 78: Loss = 3.2632925510406494 | Time = 195.24 min
+epoch 79: Loss = 3.2424697875976562 | Time = 197.75 min
+epoch 80: Loss = 3.248173713684082 | Time = 200.24 min
+epoch 81: Loss = 3.238166332244873 | Time = 202.76 min
+epoch 82: Loss = 3.2417798042297363 | Time = 205.32 min
+epoch 83: Loss = 3.2330689430236816 | Time = 207.85 min
+epoch 84: Loss = 3.2020487785339355 | Time = 210.45 min
+epoch 85: Loss = 3.2243528366088867 | Time = 213.06 min
+epoch 86: Loss = 3.244191884994507 | Time = 215.60 min
+epoch 87: Loss = 3.1966707706451416 | Time = 218.10 min
+epoch 88: Loss = 3.1773600578308105 | Time = 220.64 min
+epoch 89: Loss = 3.1982920169830322 | Time = 223.21 min
+epoch 90: Loss = 3.242647886276245 | Time = 225.77 min
+epoch 91: Loss = 3.1641616821289062 | Time = 228.31 min
+epoch 92: Loss = 3.186885356903076 | Time = 230.84 min
+epoch 93: Loss = 3.127838611602783 | Time = 233.40 min
+epoch 94: Loss = 3.1430511474609375 | Time = 235.99 min
+epoch 95: Loss = 3.149847984313965 | Time = 239.11 min
+epoch 96: Loss = 3.1137607097625732 | Time = 241.64 min
+epoch 97: Loss = 3.1179263591766357 | Time = 244.17 min
+epoch 98: Loss = 3.189849615097046 | Time = 246.82 min
+epoch 99: Loss = 3.1513047218322754 | Time = 249.33 min
+epoch 100: Loss = 3.114501953125 | Time = 251.82 min
+epoch 101: Loss = 3.076145648956299 | Time = 254.35 min
+epoch 102: Loss = 3.0338659286499023 | Time = 256.84 min
+epoch 103: Loss = 3.06992769241333 | Time = 259.35 min
+epoch 104: Loss = 3.002336263656616 | Time = 261.88 min

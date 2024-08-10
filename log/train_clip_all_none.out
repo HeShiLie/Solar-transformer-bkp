@@ -1,0 +1,64 @@
+batch_size                    : 256
+learning_rate                 : 0.01
+epochs                        : 50
+test_freq                     : 10
+save_freq                     : 10
+num_workers                   : 8
+num_shuffle                   : 100000
+mag_dir                       : /mnt/nas/home/huxing/202407/nas/data/hmi/fits/2010
+h_dir                         : /mnt/nas/home/zhouyuqing/downloads
+embed_dim                     : 512
+vision_width                  : 768
+image_resolution_mag          : 224
+vision_layers_mag             : 12
+vision_patch_size_mag         : 32
+image_resolution_H            : 224
+vision_layers_H               : 12
+vision_patch_size_H           : 32
+token_type                    : all embedding
+modal_list                    : ['magnet', '0094']
+enhance_list                  : [['log1p', 224, 1], ['log1p', 224, 1]]
+device                        : cuda:0
+checkpoint_path               : ./checkpoints/all embedding/none/
+device: cuda:0
+DataLoader time: 0.10352921485900879
+Traceback (most recent call last):
+  File "/mnt/nas/home/huxing/202407/ctf/SolarCLIP/Solarclip_train.py", line 195, in <module>
+    main()
+  File "/mnt/nas/home/huxing/202407/ctf/SolarCLIP/Solarclip_train.py", line 124, in main
+    for i, data in enumerate(train_loader):
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 631, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 1346, in _next_data
+    return self._process_data(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 1372, in _process_data
+    data.reraise()
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/_utils.py", line 705, in reraise
+    raise exception
+IsADirectoryError: Caught IsADirectoryError in DataLoader worker process 0.
+Original Traceback (most recent call last):
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/utils/data/_utils/worker.py", line 308, in _worker_loop
+    data = fetcher.fetch(index)  # type: ignore[possibly-undefined]
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/utils/data/_utils/fetch.py", line 51, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+            ~~~~~~~~~~~~^^^^^
+  File "/mnt/nas/home/huxing/202407/ctf/SolarCLIP/Data/Solardataloader.py", line 165, in __getitem__
+    img = read_image(path)
+          ^^^^^^^^^^^^^^^^
+  File "/mnt/nas/home/huxing/202407/ctf/SolarCLIP/Data/utils.py", line 5, in read_pt_image
+    return torch.load(path)
+           ^^^^^^^^^^^^^^^^
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/serialization.py", line 997, in load
+    with _open_file_like(f, 'rb') as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/serialization.py", line 444, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/serialization.py", line 425, in __init__
+    super().__init__(open(name, mode))
+                     ^^^^^^^^^^^^^^^^
+IsADirectoryError: [Errno 21] Is a directory: '/mnt/nas/home/huxing/202407/nas/data/hmi/fits/2010/08/29/hmi.M_720s.20100829_070000_TAI.pt'
+

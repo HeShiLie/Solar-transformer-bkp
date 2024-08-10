@@ -1,0 +1,72 @@
+config_dir                    : ./configs/args4.json
+batch_size                    : 400
+learning_rate                 : 0.0001
+epochs                        : 140
+test_freq                     : 10
+save_freq                     : 2
+inner_loss_rate               : 0
+num_workers                   : 16
+embed_dim                     : 512
+vision_width                  : 768
+image_resolution_mag          : 224
+vision_layers_mag             : 12
+vision_patch_size_mag         : 32
+image_resolution_H            : 224
+vision_layers_H               : 12
+vision_patch_size_H           : 32
+token_type                    : class embedding
+modal_list                    : ['magnet', '0094']
+enhance_list                  : [['log1p', 1], ['log1p', 1]]
+image_preprocess              : [224, 0.5, 90]
+device                        : cuda:0
+checkpoint_path               : /home/huxing/202407/ctf/checkpoints/
+args saved to /home/huxing/202407/ctf/checkpoints/class embedding/magnet_log1p_1_0094_log1p_1_/args.json
+device: cuda:0
+ magnet has 33454 samples
+ 0094 has 74688 samples
+All modal has 29796 samples
+ magnet has 8456 samples
+ 0094 has 34683 samples
+All modal has 8430 samples
+DataLoader time: 0.00 min
+Start training
+Traceback (most recent call last):
+  File "/mnt/nas/home/huxing/202407/ctf/SolarCLIP/Solarclip_train.py", line 264, in <module>
+    main()
+  File "/mnt/nas/home/huxing/202407/ctf/SolarCLIP/Solarclip_train.py", line 163, in main
+    for i, data in enumerate(train_loader):
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 631, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 1346, in _next_data
+    return self._process_data(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 1372, in _process_data
+    data.reraise()
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/_utils.py", line 705, in reraise
+    raise exception
+FileNotFoundError: Caught FileNotFoundError in DataLoader worker process 0.
+Original Traceback (most recent call last):
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/utils/data/_utils/worker.py", line 308, in _worker_loop
+    data = fetcher.fetch(index)  # type: ignore[possibly-undefined]
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/utils/data/_utils/fetch.py", line 51, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+            ~~~~~~~~~~~~^^^^^
+  File "/mnt/nas/home/huxing/202407/ctf/SolarCLIP/Data/Solardataloader.py", line 134, in __getitem__
+    img = read_image(path)
+          ^^^^^^^^^^^^^^^^
+  File "/mnt/nas/home/huxing/202407/ctf/SolarCLIP/Data/utils.py", line 12, in read_pt_image
+    return torch.load(path)
+           ^^^^^^^^^^^^^^^^
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/serialization.py", line 997, in load
+    with _open_file_like(f, 'rb') as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/serialization.py", line 444, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/huxing/miniconda3/envs/ctf_test/lib/python3.12/site-packages/torch/serialization.py", line 425, in __init__
+    super().__init__(open(name, mode))
+                     ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/mnt/nas/home/huxing/202407/nas/data/hmi/magnet_pt/2010/06/12/hmi.M_720s.20100612_052700_TAI.pt'
+
