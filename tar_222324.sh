@@ -2,7 +2,7 @@
 NAME="mag_222324"
 
 TAR_FILE="./tar/${NAME}.tar.gz"
-CHECKPOINT_FILE="./tar/{NAME}checkpoint.txt"
+CHECKPOINT_FILE="./log/{NAME}checkpoint.txt"
 CHECKPOINT_INTERVAL=1000
 
 if [ -f "$CHECKPOINT_FILE" ]; then
@@ -17,7 +17,7 @@ tar --skip-old-files \
     --checkpoint=$CHECKPOINT_INTERVAL \
     --checkpoint-action=exec='echo $TAR_CHECKPOINT >'"$CHECKPOINT_FILE" \
     -xzvf "$TAR_FILE" \
-    -C ./data_tar/hmi/magnet_pt
+    -C ./data_tar/hmi/magnet_pt > ./log/${NAME}.log 2>&1
 
 if [ $? -eq 0 ]; then
     echo "解压完成，删除 checkpoint 文件。"
