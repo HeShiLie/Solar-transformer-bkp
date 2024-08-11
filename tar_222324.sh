@@ -17,7 +17,7 @@ tar --skip-old-files \
     --checkpoint=$CHECKPOINT_INTERVAL \
     --checkpoint-action=exec='echo $TAR_CHECKPOINT >'"$CHECKPOINT_FILE" \
     -xzvf "$TAR_FILE" \
-    -C ./data_tar/hmi/magnet_pt > ./log/${NAME}.log 2>&1
+    -C ./try/data_test/hmi/magnet_pt > ./log/${NAME}.log 2>&1
 
 if [ $? -eq 0 ]; then
     echo "解压完成，删除 checkpoint 文件。"
