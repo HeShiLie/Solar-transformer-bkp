@@ -8,4 +8,3 @@ tar --skip-old-files \
     -C ./try/data_tar/hmi/magnet_pt > ./log/${NAME}.log 2>&1
 
 
-# tar -xzvf ../tar/mag_131415.tar.gz -C ../data_tar/hmi/magnet_pt

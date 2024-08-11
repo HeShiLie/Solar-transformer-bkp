@@ -1,12 +1,10 @@
 import torch
 import torch.nn.functional as F
-import random
 from einops import rearrange
 from Model.SolarCLIP import SolarCLIP_MODEL
 
 import matplotlib.pyplot as plt
 import numpy as np
-random.seed(42)
 
 def plot_matrix_with_images(cor_matrix, inner_cor_matrix,row_images, col_images, save_path=None,inner_loss_rate=0):
     
