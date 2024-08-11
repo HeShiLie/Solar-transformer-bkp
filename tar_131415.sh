@@ -1,5 +1,5 @@
 #!/bin/bash
-NAME="mag_10112"
+NAME="mag_131415"
 
 TAR_FILE="./tar/${NAME}.tar.gz"
 CHECKPOINT_FILE="./tar/{NAME}checkpoint.txt"
