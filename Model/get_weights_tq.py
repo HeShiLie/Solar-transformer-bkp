@@ -2,36 +2,29 @@ import torch
 from einops import rearrange
 
 # copied from
-def pixel_patchify(config, pixel_values):
+def pixel_patchify(pixel_values, tubelet_size):
     """
-    (B,T,C,H,W) -> (B,num_patches,t, c, h, w)
+    (B,C,H,W) -> (B,num_patches, c, h, w)
     """
-    B,T,C,H,W = pixel_values.size()
-    n_t = T//config.tubelet_size[0]
-    n_h = H//config.tubelet_size[1]
-    n_w = W//config.tubelet_size[2]
+    B,C,H,W = pixel_values.size()
+    n_h = H//tubelet_size[1]
+    n_w = W//tubelet_size[2]
 
-    pixel_values = rearrange(pixel_values, 'b (n_t t) c (n_h h) (n_w w) -> b n_t t c n_h h n_w w', n_t=n_t, n_h=n_h, n_w=n_w)
-    pixel_values = rearrange(pixel_values, 'b n_t t c n_h h n_w w -> b (n_t n_h n_w) t c h w')
-
+    pixel_values = rearrange(pixel_values, 'b c (n_h h) (n_w w) -> b c n_h h n_w w', n_h=n_h, n_w=n_w)
+    pixel_values = rearrange(pixel_values, 'b c n_h h n_w w -> b (n_h n_w) c h w')
 
     return pixel_values
 
-def pixel_unpatchify(config, pixel_values):
+def pixel_unpatchify(pixel_values, tubelet_size, image_size):
     """
-    (b (n_t n_h n_w) t c h w) -> (b (n_t t) c (n_h h) (n_w w))
+    (b (n_h n_w) c h w) -> (b c (n_h h) (n_w w))
     """
-    B, num_patches, t, c, h, w = pixel_values.size()
-    n_h = config.image_size // config.tubelet_size[1]
-    n_w = config.image_size // config.tubelet_size[2]
-    n_t = num_patches // (n_h * n_w)
-    T = n_t * config.tubelet_size[0]
-    H = n_h * config.tubelet_size[1]
-    W = n_w * config.tubelet_size[2]
-    C = c
+    B, num_patches, c, h, w = pixel_values.size()
+    n_h = image_size //tubelet_size[1]
+    n_w = image_size // tubelet_size[2]
 
     # (b (n_t n_h n_w) t c h w) -> (b (n_t t) c (n_h h) (n_w w))
-    pixel_values = rearrange(pixel_values,'b (n_t n_h n_w) t c h w -> b (n_t t) c (n_h h) (n_w w)', n_t=n_t, n_h=n_h, n_w=n_w)
+    pixel_values = rearrange(pixel_values,'b (n_h n_w) c h w -> b c (n_h h) (n_w w)', n_h=n_h, n_w=n_w)
 
     return pixel_values
 
@@ -311,101 +304,106 @@ def map_continous_to_discrete(value, bin = [.03, .06, .12], discrete = [0., 1., 
     return weights
 
 
-def count_sgm(config, pixel_values, sgm_num, discrete=False):
+def count_sgm(pixel_values, sgm_num, tubelet_size = [1, 64, 64], discrete=False):
     # mu, sigma
     mu = pixel_values.mean()
     sigma = pixel_values.std()
 
-    patchified_pixel = pixel_patchify(config, pixel_values) # (B, p, t, c, h, w)
-    B, num_patches, t, c, h, w = patchified_pixel.size()
+    image_size = pixel_values.size()[-1]
+
+    patchified_pixel = pixel_patchify(pixel_values, tubelet_size) # (B, p, c, h, w)
+    B, num_patches, c, h, w = patchified_pixel.size()
     weights = torch.zeros_like(patchified_pixel)
 
-    non_zero_count = (patchified_pixel != 0).float().sum(dim=(3,4,5))+1
+    non_zero_count = (patchified_pixel != 0).float().sum(dim=(2,3,4))+1
 
     greater_than_3sigma = (patchified_pixel > mu+sgm_num*sigma) | (patchified_pixel < mu-sgm_num*sigma)
-    greater_than_3sigma = greater_than_3sigma.float().sum(dim=(3,4,5))/non_zero_count
+    greater_than_3sigma = greater_than_3sigma.float().sum(dim=(2,3,4))/non_zero_count
     if discrete:
         greater_than_3sigma = map_continous_to_discrete(greater_than_3sigma)
-    greater_than_3sigma = rearrange(greater_than_3sigma, 'b np t -> b np t 1 1 1')
-    weights = greater_than_3sigma.repeat(1, 1, 1, c, h, w)
+    token_weights = greater_than_3sigma
+    greater_than_3sigma = rearrange(greater_than_3sigma, 'b np -> b np 1 1 1')
+    weights = greater_than_3sigma.repeat(1, 1, c, h, w)
 
-    # (B,num_patches,t, c, h, w)->(B,T,C,H,W)
-    token_weights = greater_than_3sigma.mean(dim = (-1,-2,-3,-4)) # (b, p)
-    weights = pixel_unpatchify(config, weights)
+    # (B,num_patches, c, h, w)->(B,C,H,W)
+    # token_weights = greater_than_3sigma.mean(dim = (-1,-2,-3,-4)) # (b, p)
+    weights = pixel_unpatchify(weights, tubelet_size, image_size)
 
-    weights = (weights/weights.sum())*(config.image_size**2)*config.num_frames
+    weights = (weights/weights.sum())*(image_size**2)
     return weights, token_weights
 
-def count_cv(config, pixel_values, discrete=False):
-    if config.weight_order in ['log1p-log1p', 'log1p-ori']:
+def count_cv(pixel_values, tubelet_size = [1, 64, 64], discrete=False, weight_order = 'log1p-log1p'):
+    image_size = pixel_values.size()[-1]
+
+    if weight_order in ['log1p-log1p', 'log1p-ori']:
         bin = [2., 3., 5.]
         bin_value = [0., 1., 3., 8.]
-    elif config.weight_order in ['ori-log1p', 'ori-ori']:
+    elif weight_order in ['ori-log1p', 'ori-ori']:
         bin = [2000., 3000., 6000.]
         bin_value = [0., 1., 3., 8.]
 
-    patchified_pixel = pixel_patchify(config, pixel_values) # (B, p, t, c, h, w)
-    B, num_patches, t, c, h, w = patchified_pixel.size()
+    patchified_pixel = pixel_patchify(pixel_values, tubelet_size) # (B, p, c, h, w)
+    B, num_patches, c, h, w = patchified_pixel.size()
     weights = torch.zeros_like(patchified_pixel)
 
-    weights = patchified_pixel.std(dim=(3,4,5)) # b p t c h w -> b p t
+    weights = patchified_pixel.std(dim=(2,3,4)) # b p c h w -> b p 
 
     if discrete:
         weights = map_continous_to_discrete(weights, bin, bin_value)
 
-    token_weights = weights.mean(dim = (-1)) # (b, p)
-    weights = rearrange(weights, 'b np t -> b np t 1 1 1')
+    token_weights = weights # (b, p)
+    weights = rearrange(weights, 'b np -> b np 1 1 1')
     weights = weights.repeat(1, 1, 1, c, h, w)
-    weights = pixel_unpatchify(config, weights)
+    weights = pixel_unpatchify(weights, tubelet_size, image_size)
 
-    weights = (weights/weights.sum())*(config.image_size**2)*config.num_frames
+    weights = (weights/weights.sum())*(image_size**2)
     return weights, token_weights
 
-def get_weights(config, pixel_values):
-    if config.loss_patch == "patch_weighted_mae":
-        weights, token_weights = count_weight_for_patch_weighted_mae(config, pixel_values)
-    elif config.loss_patch == "patch_weighted_expmae":
-        weights, token_weights = count_weight_for_patch_weighted_expmae(config, pixel_values)
-    elif config.loss_patch == "patch_weighted_sparse_mae":
-        weights, token_weights = count_weight_for_patch_weighted_sparse_mae(config, pixel_values)
-    elif config.loss_patch == "patch_weighted_sparse_expmae":
-        weights, token_weights = count_weight_for_patch_weighted_sparse_expmae(config, pixel_values)
-    elif config.loss_patch == "patch_weighted_3sigma":
-        weights, token_weights = count_weight_for_patch_weighted_3sigmamae(config, pixel_values)
-    elif config.loss_patch == "patch_weighted_3sigma_exp":
-        weights, token_weights = count_weight_for_patch_weighted_3sigmamae_exp(config, pixel_values)
-    elif config.loss_patch == "3sgm-cuda":
-        weights, token_weights = count_weight_for_patch_weighted_3sigmamae_oncuda(config, pixel_values)
-    elif config.loss_patch == "3sgm-before":
-        weights, token_weights = count_weight_for_patch_weighted_3sigmamae(config, pixel_values)
-    elif config.loss_patch == "4sgm-continous":
-        weights, token_weights = count_sgm(config, pixel_values, 4)
-    elif config.loss_patch == "3.5sgm-continous":
-        weights, token_weights = count_sgm(config, pixel_values, 3.5)
-    elif config.loss_patch == "3sgm-continous":
-        weights, token_weights = count_sgm(config, pixel_values, 3)
-    elif config.loss_patch == "2sgm-continous":
-        weights, token_weights = count_sgm(config, pixel_values, 2)
-    elif config.loss_patch == "1sgm-continous":
-        weights, token_weights = count_sgm(config, pixel_values, 1)
-    elif config.loss_patch == "cv-continous":
-        weights, token_weights = count_cv(config, pixel_values)
-    elif config.loss_patch == "4sgm-discrete":
-        weights, token_weights = count_sgm(config, pixel_values, 4, discrete=True)
-    elif config.loss_patch == "3.5sgm-discrete":
-        weights, token_weights = count_sgm(config, pixel_values, 3.5, discrete=True)
-    elif config.loss_patch == "3sgm-discrete":
-        weights, token_weights = count_sgm(config, pixel_values, 3, discrete=True)
-    elif config.loss_patch == "2sgm-discrete":
-        weights, token_weights = count_sgm(config, pixel_values, 2, discrete=True)
-    elif config.loss_patch == "1sgm-discrete":
-        weights, token_weights = count_sgm(config, pixel_values, 1, discrete=True)
-    elif config.loss_patch == "cv-discrete":
-        weights, token_weights = count_cv(config, pixel_values, discrete=True)
+def get_weights(loss_patch, pixel_values):
+    if loss_patch == "patch_weighted_mae":
+        weights, token_weights = count_weight_for_patch_weighted_mae(pixel_values)
+    elif loss_patch == "patch_weighted_expmae":
+        weights, token_weights = count_weight_for_patch_weighted_expmae(pixel_values)
+    elif loss_patch == "patch_weighted_sparse_mae":
+        weights, token_weights = count_weight_for_patch_weighted_sparse_mae(pixel_values)
+    elif loss_patch == "patch_weighted_sparse_expmae":
+        weights, token_weights = count_weight_for_patch_weighted_sparse_expmae(pixel_values)
+    elif loss_patch == "patch_weighted_3sigma":
+        weights, token_weights = count_weight_for_patch_weighted_3sigmamae(pixel_values)
+    elif loss_patch == "patch_weighted_3sigma_exp":
+        weights, token_weights = count_weight_for_patch_weighted_3sigmamae_exp(pixel_values)
+    elif loss_patch == "3sgm-cuda":
+        weights, token_weights = count_weight_for_patch_weighted_3sigmamae_oncuda(pixel_values)
+    elif loss_patch == "3sgm-before":
+        weights, token_weights = count_weight_for_patch_weighted_3sigmamae(pixel_values)
+    elif loss_patch == "4sgm-continous":
+        weights, token_weights = count_sgm(pixel_values, 4)
+    elif loss_patch == "3.5sgm-continous":
+        weights, token_weights = count_sgm(pixel_values, 3.5)
+    elif loss_patch == "3sgm-continous":
+        weights, token_weights = count_sgm(pixel_values, 3)
+    elif loss_patch == "2sgm-continous":
+        weights, token_weights = count_sgm(pixel_values, 2)
+    elif loss_patch == "1sgm-continous":
+        weights, token_weights = count_sgm(pixel_values, 1)
+    elif loss_patch == "cv-continous":
+        weights, token_weights = count_cv(pixel_values)
+    elif loss_patch == "4sgm-discrete":
+        weights, token_weights = count_sgm(pixel_values, 4, discrete=True)
+    elif loss_patch == "3.5sgm-discrete":
+        weights, token_weights = count_sgm(pixel_values, 3.5, discrete=True)
+    elif loss_patch == "3sgm-discrete":
+        weights, token_weights = count_sgm(pixel_values, 3, discrete=True)
+    elif loss_patch == "2sgm-discrete":
+        weights, token_weights = count_sgm(pixel_values, 2, discrete=True)
+    elif loss_patch == "1sgm-discrete":
+        weights, token_weights = count_sgm(pixel_values, 1, discrete=True)
+    elif loss_patch == "cv-discrete":
+        weights, token_weights = count_cv(pixel_values, discrete=True)
     else:
-        raise ValueError(f"loss_patch ^^^{config.loss_patch}^^^ no released")
+        raise ValueError(f"loss_patch ^^^{loss_patch}^^^ no released")
     
-    if config.token_weights is None:
+    if token_weights is None:
         return weights, token_weights
     else:
         # add the cls token weights

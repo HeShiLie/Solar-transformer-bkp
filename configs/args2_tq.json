@@ -5,16 +5,16 @@
     "epochs": 100,
     "test_freq": 10,
     "save_freq": 2,
-    "inner_loss_rate":1,
+    "inner_loss_rate": 1,
     "num_workers": 16,
     "embed_dim": 512,
     "vision_width": 768,
-    "image_resolution_mag": 224,
+    "image_resolution_mag": 1024,
     "vision_layers_mag": 12,
-    "vision_patch_size_mag": 32,
-    "image_resolution_H": 224,
+    "vision_patch_size_mag": 64,
+    "image_resolution_H": 1024,
     "vision_layers_H": 12,
-    "vision_patch_size_H": 32,
+    "vision_patch_size_H": 64,
     "token_type": "all embedding",
     "modal_list": [
         "magnet",
@@ -31,7 +31,7 @@
         ]
     ],
     "image_preprocess": [
-            224,
+            1024,
             0.5,
             90
     ],

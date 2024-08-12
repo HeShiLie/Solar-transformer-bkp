@@ -6,6 +6,8 @@ from Model.SolarCLIP import SolarCLIP_MODEL
 import matplotlib.pyplot as plt
 import numpy as np
 
+from Model.get_weights_tq import get_weights
+
 def plot_matrix_with_images(cor_matrix, inner_cor_matrix,row_images, col_images, save_path=None,inner_loss_rate=0):
     
     border_width = 2
@@ -115,19 +117,22 @@ def calculate_loss(model,batch, inner_loss_rate = 0, criterion = torch.nn.functi
     return loss, loss_inner, acc, logits_per_mag, inner_cor_matrix
     # return loss, acc, logits_per_mag
 
-def calculate_loss_reconstruction(decode_modal,decoder, batch, encoderModel, criterion = torch.nn.functional.mse_loss):
+def calculate_loss_reconstruction(decode_modal,decoder, batch, encoderModel, criterion = torch.nn.functional.mse_loss,
+                                  weights_type = '3sigma-discrete'):
     mag_image = batch[:,0,:,:,:] # [batch, channel, height, width]  batch:[batch, modal, channel, height, width]
     h_image = batch[:,1,:,:,:]
+    mag_weights, _ = get_weights(weights_type, mag_image)
+    h_weights, _ = get_weights(weights_type, h_image )
     mag_feature, h_feature = encoderModel.encode_mag(mag_image), encoderModel.encode_H(h_image)
     mag_feature, h_feature = mag_feature[:,1:,:], h_feature[:,1:,:]  ##all embedding
     if decode_modal == 'magnet':
         mag_recon = decoder(mag_feature)
         loss = criterion(mag_recon, mag_image)
-        mae = F.l1_loss(mag_recon, mag_image).float().item()  
+        mae = mag_weights*F.l1_loss(mag_recon, mag_image).float().item()  
     elif decode_modal == '0094':
         h_recon = decoder(h_feature)
         loss = criterion(h_recon, h_image)
-        mae = F.l1_loss(h_recon, h_image).float().item()
+        mae = h_weights*F.l1_loss(h_recon, h_image).float().item()
     else:
         raise ValueError('decode_modal should be magnet or 0094')
         

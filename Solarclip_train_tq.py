@@ -15,8 +15,8 @@ import os
 import random
 import time
 
-from Model.SolarCLIP import get_model_from_args
-from Solarclip_test import calculate_loss
+from Model.SolarCLIP_tq import get_model_from_args
+from Solarclip_test_tq import calculate_loss
 
 random.seed(42)
 
@@ -49,17 +49,17 @@ def parse_args():
     parser.add_argument('--vision_width', type=int, default=768,
                         help='Width of the vision transformer')
     parser.add_argument('--image_resolution_mag', type=int,
-                        default=224, help='Resolution of the mag image')
+                        default=1024, help='Resolution of the mag image')
     parser.add_argument('--vision_layers_mag', type=int, default=12,
                         help='Number of layers in mag vision transformer')
     parser.add_argument('--vision_patch_size_mag', type=int,
-                        default=32, help='Patch size for mag vision transformer')
+                        default=64, help='Patch size for mag vision transformer')
     parser.add_argument('--image_resolution_H', type=int,
-                        default=224, help='Resolution of the H image')
+                        default=1024, help='Resolution of the H image')
     parser.add_argument('--vision_layers_H', type=int, default=12,
                         help='Number of layers in H vision transformer')
     parser.add_argument('--vision_patch_size_H', type=int,
-                        default=32, help='Patch size for H vision transformer')
+                        default=64, help='Patch size for H vision transformer')
     parser.add_argument('--token_type', type=str,
                         default='all embedding', help='Token type for CLIP model')
 
@@ -68,7 +68,7 @@ def parse_args():
                         default=['magnet', '0094'], help='Modal list for training')
     parser.add_argument('--enhance_list', type=list, nargs="+", default=[
                         ['log1p', 1], ['log1p', 1]], help='Enhance list for training')
-    parser.add_argument('--image_preprocess', type=list, nargs="+", default=[224,0.5,90], help='Image preprocess list for training [resize, flip, rotate]')
+    parser.add_argument('--image_preprocess', type=list, nargs="+", default=[1024,0.5,90], help='Image preprocess list for training [resize, flip, rotate]')
     parser.add_argument('--device', type=str,
                         default='cuda:0', help='Device for training')
     parser.add_argument("--checkpoint_path", type=str,
@@ -171,16 +171,16 @@ def main():
             iteration_txt = f"Iteration {i} | Data time: {(time.time()-epoch_time)/60:.2f} min |"
             epoch_time = time.time()
             loss, loss_inner, acc, _, _ = calculate_loss(
-                SolarModel, data, criterion=torch.nn.functional.cross_entropy)
+                SolarModel, data,inner_loss_rate=args.inner_loss_rate, criterion=torch.nn.functional.cross_entropy)
             
             iteration_txt += f" Forward time: {(time.time()-epoch_time)/60:.2f} min |"
             epoch_time = time.time()
-
-            optimizer.zero_grad()
-            loss.backward()
             if args.inner_loss_rate > 0:
                 loss_inner*=args.inner_loss_rate
-                loss_inner.backward()
+                loss+=loss_inner
+            optimizer.zero_grad()
+            loss.backward()
+            
             optimizer.step()
             iteration_txt += f" Backward time: {(time.time()-epoch_time)/60:.2f} min |"
             print(iteration_txt)

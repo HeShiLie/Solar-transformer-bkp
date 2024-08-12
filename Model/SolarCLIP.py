@@ -76,9 +76,9 @@ class SolarCLIP_MODEL(nn.Module):
     def encode_H(self, image_H):
         return self.visual_H(image_H.type(self.dtype))
 
-    
-
     def forward(self, image_mag, image_H, token_weight_1=None, token_weight_2=None):
+
+        
         mag_features = self.encode_mag(image_mag)   #shape = [batch_size, length,embed_dim]
         H_features = self.encode_H(image_H)
         
