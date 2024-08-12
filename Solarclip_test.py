@@ -138,6 +138,19 @@ def calculate_loss_reconstruction(decode_modal,decoder, batch, encoderModel, cri
         
     return loss, mae
 
+def calculate_loss_pretrain(modal,encoder,decoder, batch, criterion = torch.nn.functional.mse_loss, weights_type = '3sigma-discrete'):
+    # [batch, channel, height, width]  batch:[batch, modal, channel, height, width]
+    if modal == 'magnet':
+        image = batch[:,0,:,:,:]
+    elif modal == '0094':
+        image = batch[:,1,:,:,:]
+    weights, _ = get_weights(weights_type, image)
+    feature = encoder(image)
+    feature = feature[:,1:,:]  ##all embedding
+    recon = decoder(feature)
+    loss = weights*criterion(recon, image) 
+    return loss
+
 
 
 

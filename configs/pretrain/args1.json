@@ -1,25 +1,24 @@
 {
-    "config_dir": "None",
+    "decoder_config_dir": "None",
+    "encoder_config_dir": "None",
+    "load_id": 200,
     "batch_size": 400,
     "learning_rate": 0.1,
     "epochs": 100,
     "test_freq": 10,
     "save_freq": 2,
-    "inner_loss_rate": 0.1,
     "num_workers": 16,
     "embed_dim": 512,
-    "vision_width": 768,
-    "image_resolution_mag": 1024,
-    "vision_layers_mag": 12,
-    "vision_patch_size_mag": 64,
-    "image_resolution_H": 1024,
-    "vision_layers_H": 12,
-    "vision_patch_size_H": 64,
+    "output_dim": 1024,
+    "hidden_dim_1": 1024,
+    "hidden_dim_2": 1024,
+    "hidden_dim_3": 1024,
     "token_type": "all embedding",
     "modal_list": [
         "magnet",
         "0094"
     ],
+    "decode_modal": "magnet",
     "enhance_list": [
         [
             "None",
@@ -31,10 +30,10 @@
         ]
     ],
     "image_preprocess": [
-            1024,
+            224,
             0.5,
             90
     ],
     "device": "cuda:0",
-    "checkpoint_path": "/mnt/tianwen-tianqing-nas/tianwen/home/202407/ctf/SolarCLIP/checkpoints/"
+    "checkpoint_path": "/mnt/nas/home/huxing/202407/ctf/SolarCLIP/checkpoints/"
 }

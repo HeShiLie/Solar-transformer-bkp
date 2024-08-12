@@ -21,9 +21,9 @@ class patch_norm(nn.Module):
         # x shape: (batch_size, num_frames, num_patches, d_model)
         if self.norm_type == 'bn1d':
             b, p, d = x.shape
-            x = rearrange(x, 'b p d -> (b p) d')
+            x = rearrange(x, 'b p d -> b d p')
             x = self.norm(x)
-            x = rearrange(x, '(b p) d -> b p d', b=b)
+            x = rearrange(x, 'b d p -> b p d')
         elif self.norm_type == 'ln':
             x = self.norm(x)
         else:
@@ -84,7 +84,6 @@ class VisionTransformer(nn.Module):
     super().__init__()
     self.transformer_token_type = token_type
     self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=width, kernel_size=patch_size, stride=patch_size, bias=False)
-
 
     scale = width ** -0.5
     self.class_embedding = nn.Parameter(scale * torch.randn(width))

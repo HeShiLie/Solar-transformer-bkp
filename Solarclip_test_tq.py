@@ -138,7 +138,15 @@ def calculate_loss_reconstruction(decode_modal,decoder, batch, encoderModel, cri
         
     return loss, mae
 
-
+def calculate_loss_pretrain(modal,encoder,decoder, image, criterion = torch.nn.functional.mse_loss, weights_type = '3sigma-discrete'):
+    # [batch, channel, height, width]  batch:[batch, modal, channel, height, width]
+    
+    weights, _ = get_weights(weights_type, image)
+    feature = encoder(image)
+    feature = feature[:,1:,:]  ##all embedding
+    recon = decoder(feature)
+    loss = weights*criterion(recon, image) 
+    return loss
 
 
 if __name__ == '__main__':
